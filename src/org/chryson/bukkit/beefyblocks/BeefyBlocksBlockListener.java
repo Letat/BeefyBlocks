@@ -14,7 +14,8 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program. If not, see <http://www.gnu.org/licenses/>.
-*/    	
+*/    
+
 package org.chryson.bukkit.beefyblocks;
 
 import java.sql.Timestamp;
@@ -23,13 +24,19 @@ import java.util.Calendar;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.Chest;
+import org.bukkit.block.ContainerBlock;
+import org.bukkit.block.Dispenser;
+import org.bukkit.block.Furnace;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
+import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockListener;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 public class BeefyBlocksBlockListener extends BlockListener {
@@ -126,10 +133,16 @@ public class BeefyBlocksBlockListener extends BlockListener {
         if (oldLines != null)
         	for (byte i = 0; i < oldLines.length; i++)
         		((Sign)block.getState()).setLine(i, oldLines[i]);
+        if (isContainer(block))
+        	restoreInventory(block);
     }
     
     public boolean isPlaced(Block block) {
         return (parent.getPlacedBlockAt(block.getLocation(), true) != null);
+    }
+    
+    public boolean hasStoredInventory(Block block) {
+    	return (parent.inventories.containsKey(block.getLocation().toString()));
     }
     
     public boolean isAttached(Block block) {
@@ -265,6 +278,38 @@ public class BeefyBlocksBlockListener extends BlockListener {
     	return now.before(new Timestamp(periodEnd));
     }
     
+    public boolean isContainer(Block block) {
+    	return (block.getType() == Material.CHEST ||
+    			block.getType() == Material.DISPENSER ||
+    			block.getType() == Material.FURNACE);
+    }
+    
+    public void removeInventory(Block block) {
+		Inventory inventory = null;
+		if (block.getType() == Material.CHEST)
+			inventory = ((Chest)block.getState()).getInventory();
+		else if (block.getType() == Material.DISPENSER)
+			inventory = ((Dispenser)block.getState()).getInventory();
+		else if (block.getType() == Material.FURNACE)
+			inventory = ((Furnace)block.getState()).getInventory();
+		ItemStackSerializable[] sInventory = ItemStackSerializable.toItemStackSerializableArr(inventory.getContents());
+		parent.inventories.put(block.getLocation().toString(), sInventory);
+		inventory.clear();
+    }
+    
+    public void restoreInventory(Block block) {
+		ItemStack[] inventory = ItemStackSerializable.toItemStackArr(
+				((ItemStackSerializable[]) parent.inventories.get(block.getLocation().toString())));
+		if (block.getType() == Material.CHEST) {
+			((Chest)block.getState()).getInventory().setContents(inventory);
+		} else if (block.getType() == Material.DISPENSER) {
+			((Dispenser)block.getState()).getInventory().setContents(inventory);
+		} else if (block.getType() == Material.FURNACE) {
+			((Furnace)block.getState()).getInventory().setContents(inventory);
+		}
+		parent.inventories.remove(block.getLocation().toString());
+    }
+    
     @Override
     public void onBlockPlace(BlockPlaceEvent event) {
         if (event.isCancelled())
@@ -273,7 +318,7 @@ public class BeefyBlocksBlockListener extends BlockListener {
         PlacedBlock pBlock = new PlacedBlock(event.getPlayer(), event.getBlock());
         parent.getDatabase().save(pBlock);
     }
-    
+
     @Override
     public void onBlockBurn(BlockBurnEvent event) {
         if (event.isCancelled())
@@ -321,6 +366,8 @@ public class BeefyBlocksBlockListener extends BlockListener {
 	        	// remove a placed block from database (if it was one)
 	        	removeBlock(block);
 	        } else {
+	        	if (isContainer(block))
+	        		removeInventory(block);
 	        	trackAttachedLives(block);
 	        	event.setCancelled(true);
 		        damageTool(player, player.getItemInHand());

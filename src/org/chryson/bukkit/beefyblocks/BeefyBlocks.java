@@ -14,11 +14,17 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program. If not, see <http://www.gnu.org/licenses/>.
-*/    	
+*/    
+
 package org.chryson.bukkit.beefyblocks;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +53,9 @@ public class BeefyBlocks extends JavaPlugin {
     protected Map attachedBlocks;
     // keeps track of the remaining 'lives' of blocks
     protected Map blockLives;
+    // very temporarily stores the inventory of a container block just before it's broken up
+    // until just after it is respawned
+    protected Map inventories;
     // hold the break counts for each block type
     protected byte[] baseLives;
     protected byte[] placedLives;
@@ -58,7 +67,8 @@ public class BeefyBlocks extends JavaPlugin {
         
     	attachedBlocks = new ConcurrentHashMap();
         blockLives = new ConcurrentHashMap();
-
+        inventories = new ConcurrentHashMap();
+        
         // should be the size for all block materials
         baseLives = new byte[256];
         placedLives = new byte[256];
@@ -106,12 +116,12 @@ public class BeefyBlocks extends JavaPlugin {
     	}
     	return true;
     }
-    
+
     @Override
     public List<Class<?>> getDatabaseClasses() {
     	List<Class<?>> list = new ArrayList<Class<?>>();
     	list.add(PlayerSettings.class);
-    	list.add(PlacedBlockLocation.class);
+    	list.add(BlockLocation.class);
     	list.add(PlacedBlock.class);
     	return list;
     }
@@ -260,7 +270,6 @@ public class BeefyBlocks extends JavaPlugin {
         PluginManager pm = getServer().getPluginManager();
         
         pm.registerEvent(Event.Type.BLOCK_PLACE, blockListener, Priority.Lowest, this);
-        pm.registerEvent(Event.Type.BLOCK_DAMAGE, blockListener, Priority.Lowest, this);
         pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Priority.Lowest, this);
         pm.registerEvent(Event.Type.BLOCK_PHYSICS, blockListener, Priority.Lowest, this);
         pm.registerEvent(Event.Type.PLAYER_COMMAND_PREPROCESS, playerListener, Priority.Lowest, this);

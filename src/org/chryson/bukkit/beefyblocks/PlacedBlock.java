@@ -14,7 +14,8 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program. If not, see <http://www.gnu.org/licenses/>.
-*/    	
+*/  
+
 package org.chryson.bukkit.beefyblocks;
 
 import java.sql.Timestamp;
@@ -37,7 +38,7 @@ import com.avaje.ebean.validation.NotNull;
 @Table(name="bb_placed_blocks")
 public class PlacedBlock {
 	@EmbeddedId
-	private PlacedBlockLocation loc;
+	private BlockLocation loc;
 	
 	@Basic
 	private int blockTypeId;
@@ -55,15 +56,15 @@ public class PlacedBlock {
 	public PlacedBlock(Player p, Block b) {
 		setPlayerName(p.getName());
 		setBlockTypeId(b.getTypeId());
-		setLoc(new PlacedBlockLocation(b.getLocation()));
+		setLoc(new BlockLocation(b.getLocation()));
 		setTimestamp(new Timestamp(Calendar.getInstance().getTime().getTime()));
 	}
 	
-	public PlacedBlockLocation getLoc() {
+	public BlockLocation getLoc() {
 		return loc;
 	}
 	
-	public void setLoc(PlacedBlockLocation loc) {
+	public void setLoc(BlockLocation loc) {
 		this.loc = loc;
 	}
 	
