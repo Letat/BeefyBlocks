@@ -141,10 +141,6 @@ public class BeefyBlocksBlockListener extends BlockListener {
         return (parent.getPlacedBlockAt(block.getLocation(), true) != null);
     }
     
-    public boolean hasStoredInventory(Block block) {
-    	return (parent.inventories.containsKey(block.getLocation().toString()));
-    }
-    
     public boolean isAttached(Block block) {
     	return (parent.attachedBlocks.containsKey(block.getLocation().toString()));
     }
