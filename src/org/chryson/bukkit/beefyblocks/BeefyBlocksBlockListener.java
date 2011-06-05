@@ -339,6 +339,8 @@ public class BeefyBlocksBlockListener extends BlockListener {
         	// remove a placed block from database (if it was one)
         	removeBlock(block);
         } else {
+        	if (isContainer(block))
+        		removeInventory(block);
         	trackAttachedLives(block);
         	event.setCancelled(true);
         	respawnBlock(block);
