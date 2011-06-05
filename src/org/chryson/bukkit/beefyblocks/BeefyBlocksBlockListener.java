@@ -70,6 +70,8 @@ public class BeefyBlocksBlockListener extends BlockListener {
     	case SAPLING:
     	case POWERED_RAIL:
     	case DETECTOR_RAIL:
+    	case LONG_GRASS:
+    	case DEAD_BUSH:
     	case YELLOW_FLOWER:
     	case RED_ROSE:
     	case BROWN_MUSHROOM:
