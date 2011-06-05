@@ -318,11 +318,11 @@ public class BeefyBlocksBlockListener extends BlockListener {
         if (event.isCancelled())
             return;
         
-    	if (parent.getPlacedBlockAt(event.getBlock().getLocation(), true) == null) {
-    		PlacedBlock pBlock = new PlacedBlock(event.getPlayer(), event.getBlock());
-    		parent.getDatabase().save(pBlock);
-    	} else
-    		event.setCancelled(true);
+        PlacedBlock origBlock = parent.getPlacedBlockAt(event.getBlock().getLocation(), false);
+    	if (origBlock != null)
+    		parent.getDatabase().delete(origBlock);
+    	PlacedBlock pBlock = new PlacedBlock(event.getPlayer(), event.getBlock());
+    	parent.getDatabase().save(pBlock);
     }
 
     @Override
