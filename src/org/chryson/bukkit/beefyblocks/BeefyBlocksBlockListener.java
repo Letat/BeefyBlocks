@@ -114,6 +114,7 @@ public class BeefyBlocksBlockListener extends BlockListener {
     	case REDSTONE_TORCH_ON:
     	case STONE_BUTTON:
     	case PORTAL:
+    	case TRAP_DOOR:
     		return 1;
     	default: break;
     	}
@@ -166,9 +167,8 @@ public class BeefyBlocksBlockListener extends BlockListener {
     	return life;
     }
     
-    public void damageTool(Player p, ItemStack tool) {
-    	boolean isTool = false;
-    	switch (tool.getType()) {
+    public boolean isTool(ItemStack item) {
+    	switch (item.getType()) {
     	case IRON_SPADE:
     	case IRON_PICKAXE:
     	case IRON_AXE:
@@ -185,7 +185,6 @@ public class BeefyBlocksBlockListener extends BlockListener {
     	case DIAMOND_SPADE:
     	case DIAMOND_PICKAXE:
     	case DIAMOND_AXE:
-    	case STICK:
     	case GOLD_SWORD:
     	case GOLD_SPADE:
     	case GOLD_PICKAXE:
@@ -195,17 +194,20 @@ public class BeefyBlocksBlockListener extends BlockListener {
     	case IRON_HOE:
     	case DIAMOND_HOE:
     	case GOLD_HOE:
-    		isTool = true;
+    		return true;
     	}
-    	
-    	if (isTool) {
-	    	if (tool.getDurability() >= tool.getType().getMaxDurability())
-	    		if (tool.getAmount() > 1)
-	    			tool.setAmount(tool.getAmount()-1);
+    	return false;
+    }
+    
+    public void damageTool(Player p, ItemStack item) {
+    	if (isTool(item)) {
+	    	if (item.getDurability() >= item.getType().getMaxDurability())
+	    		if (item.getAmount() > 1)
+	    			item.setAmount(item.getAmount()-1);
 	    		else
 	    			p.setItemInHand(null);
 	    	else
-	    		tool.setDurability((short)(tool.getDurability()+1));
+	    		item.setDurability((short)(item.getDurability()+1));
     	}
     }
     
@@ -214,11 +216,14 @@ public class BeefyBlocksBlockListener extends BlockListener {
     }
     
     public void removeBlock(Block block) {
-    	if (isPlaced(block))
-    		parent.getDatabase().delete(parent.getPlacedBlockAt(block.getLocation(), false));
+    	if (isPlaced(block)) {
+    		PlacedBlock pBlock = parent.getPlacedBlockAt(block.getLocation(), false);
+    		if (pBlock != null)
+    			parent.getDatabase().delete(pBlock);
+    	}
     }
     
-    public void removeAttached(Block block) {
+    public void untrackAttachedLives(Block block) {
         parent.attachedBlocks.remove(block.getLocation().toString());
     }
     
@@ -260,7 +265,7 @@ public class BeefyBlocksBlockListener extends BlockListener {
     
     public void resizeMaps() {
         // To avoid consuming too much memory, reset these
-        if (parent.blockLives.size() > 1000) {
+        if (parent.blockLives.size() > 1000000) {
         	parent.blockLives.clear();
         }
     }
@@ -310,9 +315,12 @@ public class BeefyBlocksBlockListener extends BlockListener {
     public void onBlockPlace(BlockPlaceEvent event) {
         if (event.isCancelled())
             return;
-
-        PlacedBlock pBlock = new PlacedBlock(event.getPlayer(), event.getBlock());
-        parent.getDatabase().save(pBlock);
+        
+    	if (parent.getPlacedBlockAt(event.getBlock().getLocation(), true) == null) {
+    		PlacedBlock pBlock = new PlacedBlock(event.getPlayer(), event.getBlock());
+    		parent.getDatabase().save(pBlock);
+    	} else
+    		event.setCancelled(true);
     }
 
     @Override
@@ -387,7 +395,7 @@ public class BeefyBlocksBlockListener extends BlockListener {
         if (isAttached(block)) {
             int attachedToId = (Integer)parent.attachedBlocks.get(block.getLocation().toString());
             if (attachedToId == event.getChangedTypeId()) {
-            	removeAttached(block);
+            	untrackAttachedLives(block);
             	event.setCancelled(true);
             }
         }
