@@ -51,13 +51,21 @@ public class PlacedBlock {
 	@Basic
 	private Timestamp timestamp;
 	
+	@Basic
+	private boolean permanent;
+	
 	public PlacedBlock() {}
 	
 	public PlacedBlock(Player p, Block b) {
+		this(p, b, false);
+	}
+	
+	public PlacedBlock(Player p, Block b, boolean permanent) {
 		setPlayerName(p.getName());
 		setBlockTypeId(b.getTypeId());
 		setLoc(new BlockLocation(b.getLocation()));
 		setTimestamp(new Timestamp(Calendar.getInstance().getTime().getTime()));
+		setPermanent(permanent);
 	}
 	
 	public BlockLocation getLoc() {
@@ -92,4 +100,11 @@ public class PlacedBlock {
 		this.timestamp = timestamp;
 	}
 	
+	public boolean isPermanent() {
+		return permanent;
+	}
+	
+	public void setPermanent(boolean permanent) {
+		this.permanent = permanent;
+	}
 }

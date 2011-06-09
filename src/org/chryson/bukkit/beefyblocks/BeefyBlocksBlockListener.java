@@ -287,6 +287,17 @@ public class BeefyBlocksBlockListener extends BlockListener {
     			block.getType() == Material.FURNACE);
     }
     
+    public boolean isPermBlock(Block block) {
+    	PlacedBlock pBlock = parent.getPlacedBlockAt(block.getLocation(), true);
+    	if (pBlock == null)
+    		return false;
+    	return pBlock.isPermanent();
+    }
+    
+    public boolean isPermBlockPlacer(Player player) {
+    	return parent.permBlockPlacers.contains(player.getName());
+    }
+    
     public void removeInventory(Block block) {
 		Inventory inventory = null;
 		if (block.getType() == Material.CHEST)
@@ -318,13 +329,33 @@ public class BeefyBlocksBlockListener extends BlockListener {
         if (event.isCancelled())
             return;
         
+        Player player = event.getPlayer();
         PlacedBlock origBlock = parent.getPlacedBlockAt(event.getBlock().getLocation(), false);
     	if (origBlock != null)
     		parent.getDatabase().delete(origBlock);
-    	PlacedBlock pBlock = new PlacedBlock(event.getPlayer(), event.getBlock());
+    	PlacedBlock pBlock = new PlacedBlock(player, 
+    										 event.getBlock(), 
+    										 isPermBlockPlacer(player));
+    	if (isPermBlockPlacer(player))
+	    	player.sendMessage("You place a permanent block.");
+    	
     	parent.getDatabase().save(pBlock);
     }
 
+    @Override
+    public void onBlockDamage(BlockDamageEvent event) {
+    	if (event.isCancelled())
+    		return;
+    	
+    	if (isPermBlock(event.getBlock())) {
+    		Player p = event.getPlayer();
+    		if (!BeefyBlocks.hasPermission(p, "beefyblocks.admin")) {
+    			event.setCancelled(true);
+    			p.sendMessage("This block is permanent.");
+    		}
+    	}
+    }
+    
     @Override
     public void onBlockBurn(BlockBurnEvent event) {
         if (event.isCancelled())

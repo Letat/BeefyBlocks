@@ -23,12 +23,20 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerListener;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 public class BeefyBlocksPlayerListener extends PlayerListener {
 	private BeefyBlocks parent;
 	
 	public BeefyBlocksPlayerListener(BeefyBlocks instance) {
 		parent = instance;
+	}
+	
+	@Override
+	public void onPlayerQuit(PlayerQuitEvent event) {
+		Player p = event.getPlayer();
+		if (parent.permBlockPlacers.contains(p.getName()))
+			parent.permBlockPlacers.remove(p.getName());
 	}
 	
     @Override
@@ -91,6 +99,19 @@ public class BeefyBlocksPlayerListener extends PlayerListener {
     			}
     		}
     		parent.getDatabase().save(ps);
+    		event.setCancelled(true);
+    	} else if (args[0].equals("/beefyperm")) {
+    		if (BeefyBlocks.hasPermission(p, "beefyblocks.perm")) {
+	    		if (parent.permBlockPlacers.contains(p.getName())) {
+	    			parent.permBlockPlacers.remove(p.getName());
+	    			p.sendMessage(ChatColor.GREEN + "[Beefy] You are no longer placing permanent blocks.");
+	    		} else {
+	    			parent.permBlockPlacers.add(p.getName());
+	    			p.sendMessage(ChatColor.GREEN + "[Beefy] You are now placing permanent blocks.");
+	    		}
+    		} else {
+    			p.sendMessage(ChatColor.RED + "[Beefy] You do not have the authority to do that.");
+    		}
     		event.setCancelled(true);
     	}
     }

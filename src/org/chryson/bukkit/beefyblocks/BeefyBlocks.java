@@ -26,8 +26,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
@@ -56,6 +58,7 @@ public class BeefyBlocks extends JavaPlugin {
     // very temporarily stores the inventory of a container block just before it's broken up
     // until just after it is respawned
     protected Map inventories;
+    protected Set permBlockPlacers;
     // hold the break counts for each block type
     protected byte[] baseLives;
     protected byte[] placedLives;
@@ -68,6 +71,7 @@ public class BeefyBlocks extends JavaPlugin {
     	attachedBlocks = new ConcurrentHashMap();
         blockLives = new ConcurrentHashMap();
         inventories = new ConcurrentHashMap();
+        permBlockPlacers = Collections.newSetFromMap(new ConcurrentHashMap());
         
         // should be the size for all block materials
         baseLives = new byte[256];
@@ -270,10 +274,12 @@ public class BeefyBlocks extends JavaPlugin {
         PluginManager pm = getServer().getPluginManager();
         
         pm.registerEvent(Event.Type.BLOCK_PLACE, blockListener, Priority.Lowest, this);
+        pm.registerEvent(Event.Type.BLOCK_DAMAGE, blockListener, Priority.Lowest, this);
         pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Priority.Lowest, this);
         pm.registerEvent(Event.Type.BLOCK_BURN, blockListener, Priority.Lowest, this);
         pm.registerEvent(Event.Type.BLOCK_PHYSICS, blockListener, Priority.Lowest, this);
         pm.registerEvent(Event.Type.PLAYER_COMMAND_PREPROCESS, playerListener, Priority.Lowest, this);
+        pm.registerEvent(Event.Type.PLAYER_QUIT, playerListener, Priority.Lowest, this);
 
         enableMessage();
     }
