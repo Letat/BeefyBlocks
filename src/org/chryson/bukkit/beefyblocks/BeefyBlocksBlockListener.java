@@ -33,6 +33,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockDamageEvent;
+import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockListener;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -354,6 +355,15 @@ public class BeefyBlocksBlockListener extends BlockListener {
     			p.sendMessage("This block is permanent.");
     		}
     	}
+    }
+    
+    @Override
+    public void onBlockIgnite(BlockIgniteEvent event) {
+    	if (event.isCancelled())
+    		return;
+    	
+    	if (isPermBlock(event.getBlock()))
+    		event.setCancelled(true);
     }
     
     @Override

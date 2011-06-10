@@ -276,6 +276,7 @@ public class BeefyBlocks extends JavaPlugin {
         pm.registerEvent(Event.Type.BLOCK_PLACE, blockListener, Priority.Lowest, this);
         pm.registerEvent(Event.Type.BLOCK_DAMAGE, blockListener, Priority.Lowest, this);
         pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Priority.Lowest, this);
+        pm.registerEvent(Event.Type.BLOCK_IGNITE, blockListener, Priority.Lowest, this);
         pm.registerEvent(Event.Type.BLOCK_BURN, blockListener, Priority.Lowest, this);
         pm.registerEvent(Event.Type.BLOCK_PHYSICS, blockListener, Priority.Lowest, this);
         pm.registerEvent(Event.Type.PLAYER_COMMAND_PREPROCESS, playerListener, Priority.Lowest, this);

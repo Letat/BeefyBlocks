@@ -1,4 +1,4 @@
 name: BeefyBlocks
 main: org.chryson.bukkit.beefyblocks.BeefyBlocks
-version: 0.6.0
+version: 0.6.2
 database: true
