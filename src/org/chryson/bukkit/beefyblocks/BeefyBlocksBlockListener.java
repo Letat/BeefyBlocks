@@ -282,6 +282,13 @@ public class BeefyBlocksBlockListener extends BlockListener {
     	return now.before(new Timestamp(periodEnd));
     }
     
+    public boolean hasChangedType(Block block) {
+    	PlacedBlock pBlock = parent.getPlacedBlockAt(block.getLocation(), true);
+    	if (pBlock == null)
+    		return false;
+    	return (block.getTypeId() != pBlock.getBlockTypeId());
+    }
+    
     public boolean isContainer(Block block) {
     	return (block.getType() == Material.CHEST ||
     			block.getType() == Material.DISPENSER ||
@@ -372,6 +379,9 @@ public class BeefyBlocksBlockListener extends BlockListener {
             return;
         
         Block block = event.getBlock();
+        if (hasChangedType(block))
+        	removeBlock(block);
+        
         if (!isLifeTracked(block))
         	trackLife(block);
         BlockLife life = loseLife(block);
@@ -393,6 +403,9 @@ public class BeefyBlocksBlockListener extends BlockListener {
         
         Player player = event.getPlayer();
         Block block = event.getBlock();
+        if (hasChangedType(block))
+        	removeBlock(block);
+        
         if (BeefyBlocks.hasPermission(player, "beefyblocks.admin")) {
         	if (isLifeTracked(block))
         		untrackLife(block);
