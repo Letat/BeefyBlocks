@@ -36,8 +36,8 @@ import com.avaje.ebean.validation.NotNull;
 
 //@CacheStrategy(readOnly=true)
 @Entity
-@Table(name="bb_placed_blocks")
-public class PlacedBlock {
+@Table(name="bb_block_data")
+public class Block {
 	@EmbeddedId
 	private BlockLocation location;
 	
@@ -49,7 +49,7 @@ public class PlacedBlock {
 	@Basic
 	@NotNull
 	@NotEmpty
-	private String playerName;
+	private String ownerName;
 	
 	@Basic
 	private Timestamp timestamp;
@@ -60,20 +60,20 @@ public class PlacedBlock {
 	@Basic
 	private int reinforcement;
 	
-	public PlacedBlock() {}
+	public Block() {}
 	
-	public PlacedBlock(Player p, Block b) {
-		this(p, b, false);
+	public Block(Player owner, Block block) {
+		this(owner, block, false);
 	}
 	
-	public PlacedBlock(Player p, Block b, boolean permanent) {
-		this(p.getName(), b, permanent);
+	public Block(Player owner, Block block, boolean permanent) {
+		this(owner.getName(), block, permanent);
 	}
 	
-	public PlacedBlock(String pName, Block b, boolean permanent) {
-		setPlayerName(pName);
-		setMaterial(b.getType());
-		setLocation(new BlockLocation(b.getLocation()));
+	public Block(String ownerName, Block block, boolean permanent) {
+		setOwnerName(ownerName);
+		setMaterial(block.getType());
+		setLocation(new BlockLocation(block.getLocation()));
 		setTimestamp(new Timestamp(Calendar.getInstance().getTime().getTime()));
 		setPermanent(permanent);
 		setReinforcement(0);
@@ -95,12 +95,12 @@ public class PlacedBlock {
 		return materialName;
 	}
 	
-	public String getPlayerName() {
-		return playerName;
+	public String getOwnerName() {
+		return ownerName;
 	}
 	
-	public void setPlayerName(String playerName) {
-		this.playerName = playerName;
+	public void setOwnerName(String ownerName) {
+		this.ownerName = ownerName;
 	}
 	
 	public Timestamp getTimestamp() {

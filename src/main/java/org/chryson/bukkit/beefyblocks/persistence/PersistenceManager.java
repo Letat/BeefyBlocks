@@ -10,10 +10,10 @@ import org.chryson.bukkit.beefyblocks.db.PlacedBlock;
 import org.chryson.bukkit.beefyblocks.db.PlayerSettings;
 
 public class PersistenceManager {
-	private static BeefyBlocks plugin;
+	private static BeefyBlocks beefy;
     
-	public PersistenceManager(BeefyBlocks instance) {
-		plugin = instance;
+	public PersistenceManager(BeefyBlocks bb) {
+		beefy = bb;
 	}
     
 	public static PlacedBlock createPlacedBlock(Player player, Block block, boolean perm) {

@@ -1,0 +1,26 @@
+name: ${project.name}
+version: '0.1.0'
+author: 'chryson'
+main: org.chryson.bukkit.beefyblocks.BeefyBlocks
+description: ${project.description}
+commands:
+	bb:
+		description: 'BeefyBlocks plugin commands'
+		usage: 'Usage: /<command> help'
+		aliases: [beefyblocks]
+permissions:
+	beefyblocks.*:
+		description: 'Grants access to all BeefyBlocks commands'
+		children:
+			beefyblocks.beefup: true
+			beefyblocks.perm: true
+			beefyblocks.status: true
+	beefyblocks.beefup:
+		description: 'Grants access to the /bb beefup commands'
+		default: op
+	beefyblocks.perm:
+		description: 'Grants access to the /bb perm commands'
+		default: op
+	beefyblocks.status:
+		description: 'Grants access to the /bb status commands'
+		default: true

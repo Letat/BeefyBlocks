@@ -1,4 +1,0 @@
-name: BeefyBlocks
-main: org.chryson.bukkit.beefyblocks.BeefyBlocks
-version: 0.8.0
-database: true
